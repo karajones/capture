@@ -18,6 +18,11 @@
 ## being saved.) These commands can all be strung together with `&&`
 ## to run them consecutively.
 
+### File organization ###
+
+# Raw files are stored in `fastqs`
+mkdir sams && mkdir bams
+
 ### Raw read prep ###
 
 # Trim and remove adapter contamination
