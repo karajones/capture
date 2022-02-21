@@ -19,26 +19,29 @@
 ## to run them consecutively.
 
 ### File organization ###
-
-# Raw files are stored in `fastqs`
+# Raw sequencing files are stored in `fastqs`
+# Indexed reference sequences stored in `reference`
 mkdir sams && mkdir bams
 
 ### Raw read prep ###
 
 # Trim and remove adapter contamination
+# Note: change naming expression as needed to match R1/2 filenames
 for f in ./fastqs/*_1.fq.gz; do trimmomatic PE ${f%%_*}_1.fq.gz ${f%%_*}_2.fq.gz ${f%%_*}_1p.fq.gz ${f%%_*}_1u.fq.gz ${f%%_*}_2p.fq.gz ${f%%_*}_2u.fq.gz ILLUMINACLIP:./adapters/TruSeq3-PE.fa:2:30:10:2:True MINLEN:40; done
 
 ### Align sequences, remove duplicates, output clean bam file ###
 
 # 1. Align sequences to reference using BWA MEM
 # Note: change naming expression as needed to match R1/2 filenames
-for f in ./fastqs/*_1p.fq.gz; do bwa mem ./reference/reference_updated.fas $f ${f%%_*}_2p.fq.gz > ./sams/${f%%.*}.sam; done
+for f in ./fastqs/*_1p.fq.gz; do bwa mem ./reference/reference.fas $f ${f%%_*}_2p.fq.gz > ./sams/${${f%%_*}##*/}.sam; done
 
-2. Convert to bam (-b) and sort
-for f in ./sams/*.sam; do samtools view -h -u -b $f | samtools sort -m 8G - > ./bams/${f%%.*}.bam; done
+#2. Convert to bam (-b) and sort
+for f in ./sams/*.sam; do samtools view -h -u -b $f | samtools sort -m 8G - > ./bams/${${f%.*}##*/}.bam; done
 
-3. Mark duplicates with Picard
-for f in ./bams/*.bam; do picard MarkDuplicatesWithMateCigar --MINIMUM_DISTANCE 500 -I $f -O ./bams/${f%%.*}.marked.bam -M marked_duplicates.txt; done
+#3. Mark duplicates with Picard
+for f in ./bams/*.bam; do picard MarkDuplicatesWithMateCigar --MINIMUM_DISTANCE 500 -I $f -O ./bams/${${f%.*}##*/}.marked.bam -M  marked_duplicates.txt; done
 
-4. Output clean bam file & index
-for f in ./bams/*.marked.bam; do samtools view -h -F 1284 $f | grep -v -e 'XA:Z:' -e 'SA:Z:' - | samtools view -b - > ./bams/${f%%.*}.final.bam; done && for f in ./bams/*.final.bam; do samtools index $f; done
+#4. Output clean bam file & index
+for f in ./bams/*.marked.bam; do samtools view -h -F 1284 $f | grep -v -e 'XA:Z:' -e 'SA:Z:' - | samtools view -b - > ./bams/${${${f%.*}%.*}##*/}.final.bam; done && for f in ./bams/*.final.bam; do samtools index $f; done
+
+### END ###
