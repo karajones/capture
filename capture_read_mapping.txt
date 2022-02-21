@@ -1,0 +1,39 @@
+##################################################################
+### Processing raw fastqs from capture rx into clean bam files ###
+### For more info, see https://github.com/karajones/tutorials  ###
+### Required programs:                                         ###
+### BWA MEM (https://github.com/lh3/bwa)                       ###
+### samtools (https://github.com/samtools/samtools)            ###
+### bedtools (https://bedtools.readthedocs.io)                 ### 
+### Picard (https://broadinstitute.github.io/picard/)          ###
+### VCFTools (https://vcftools.github.io/index.html)           ###
+### Trimmomatic (https://github.com/usadellab/Trimmomatic)     ###
+##################################################################
+
+## Each step is set up as a `for` loop to work through all samples
+## before moving on to the next step. Many of the output files
+## are unnecessary - they are set up as checkpoints where extra
+## quality control can be implemented as needed. (Later those files
+## can be sent to stdout and piped on to the next step instead of
+## being saved.) These commands can all be strung together with `&&`
+## to run them consecutively.
+
+### Raw read prep ###
+
+# Trim and remove adapter contamination
+for f in ./fastqs/*_1.fq.gz; do trimmomatic PE ${f%%_*}_1.fq.gz ${f%%_*}_2.fq.gz ${f%%_*}_1p.fq.gz ${f%%_*}_1u.fq.gz ${f%%_*}_2p.fq.gz ${f%%_*}_2u.fq.gz ILLUMINACLIP:./adapters/TruSeq3-PE.fa:2:30:10:2:True MINLEN:40; done
+
+### Align sequences, remove duplicates, output clean bam file ###
+
+# 1. Align sequences to reference using BWA MEM
+# Note: change naming expression as needed to match R1/2 filenames
+for f in ./fastqs/*_1p.fq.gz; do bwa mem ./reference/reference_updated.fas $f ${f%%_*}_2p.fq.gz > ./sams/${f%%.*}.sam; done
+
+2. Convert to bam (-b) and sort
+for f in ./sams/*.sam; do samtools view -h -u -b $f | samtools sort -m 8G - > ./bams/${f%%.*}.bam; done
+
+3. Mark duplicates with Picard
+for f in ./bams/*.bam; do picard MarkDuplicatesWithMateCigar --MINIMUM_DISTANCE 500 -I $f -O ./bams/${f%%.*}.marked.bam -M marked_duplicates.txt; done
+
+4. Output clean bam file & index
+for f in ./bams/*.marked.bam; do samtools view -h -F 1284 $f | grep -v -e 'XA:Z:' -e 'SA:Z:' - | samtools view -b - > ./bams/${f%%.*}.final.bam; done && for f in ./bams/*.final.bam; do samtools index $f; done
