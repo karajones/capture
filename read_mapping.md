@@ -1,4 +1,4 @@
-# Capture read mapping
+# Mapping capture reads
 
 >This tutorial goes with the [capture_read_mapping.txt](https://github.com/karajones/tutorials/blob/master/scripts/capture_read_mapping.txt) script file.
 
