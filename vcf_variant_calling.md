@@ -10,14 +10,14 @@
 4. `filter`
    - `--IndelGap 5`: assuming indels within 5 bp of each other are false. 
      - See: [https:/ ls.github.io/bcftools/howtos/consensus-sequence.html](https://samtools.github.io/bcftools/howtos/consensus-sequence.html)
-  - `-e`: exclude calls with a quality score below 200 and a depth below 20
+   - `-e`: exclude calls with a quality score below 200 and a depth below 20
 5. `norm`: normalize indels
-  - see explanation here: [https://genome.sph.umich.edu/wiki/Variant_Normalization](https://genome.sph.umich.edu/wiki/Variant_Normalization)
-  - `-d all` in the case of records with the same position, only the first will be considered and appear on output.
-  - `-c wx` warn if REF allele is incorrect or missing and exclude
+   - see explanation here: [https://genome.sph.umich.edu/wiki/Variant_Normalization](https://genome.sph.umich.edu/wiki/Variant_Normalization)
+   - `-d all` in the case of records with the same position, only the first will be considered and appear on output.
+   - `-c wx` warn if REF allele is incorrect or missing and exclude
 
 ```
-for f in ./bams/*.final.bam; do bcftools mpileup -d 874 -f ./reference/reference_updated.fas $f | bcftools call -m -v | bcftools view -m2 -M2 | bcftools filter --IndelGap 5 -e '%QUAL<200 || DP<20' | bcftools norm -f ./reference/reference.fas - -c wx > ${f%%.*}.20dp.vcf; done
+for f in ./bams/*.final.bam; do bcftools mpileup -d 874 -f ./reference/reference_updated.fas $f | bcftools call -m -v | bcftools view -m2 -M2 | bcftools filter -e '%QUAL<200 || DP<20' | bcftools norm -f ./reference/reference.fas - -c wx > ${f%%.*}.20dp.vcf; done
 ```
 
 Example log (normal):
