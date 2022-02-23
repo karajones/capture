@@ -2,4 +2,4 @@
 
 `reference_updated.fas` and others: indexed reference fasta with loci used in final iteration of kit
 
-`reference_updated.bed`: a list of all loci names, start positions, and end positions
+`reference_updated.bed`: a list of all loci names, start positions, and end positions (used for `bedtools` analyses)
