@@ -53,6 +53,28 @@ Here's a table with an example before/after:
 
 All the secondary, supplementary and duplicates were removed and only primary mapped reads remain.
 
+## Stats on locus depth
+
+```
+bedtools genomecov -bga -ibam DWR12.final.bam | awk '$4 >= 20' | bedtools merge -i - -c 4 -o min,max,mean,median > DWR12.stats.bed
+echo -e "locus\tstart\tend\tmin\tmax\tmean\tmedian\n$(cat DWR12.stats.bed)" > DWR12.stats.bed
+```
+
+```
+head DWR12.stats.bed 
+locus	start	end	min	max	mean	median
+D01-LOCUS478-290	14	32	20	21	20.5	20.5
+D01-LOCUS478-290	75	87	20	26	23.66666667	24
+D01-LOCUS478-290	89	108	24	38	30.85714286	32
+D01-LOCUS478-290	109	142	20	40	30.83333333	32
+D01-LOCUS478-290	154	258	20	88	70.88461538	78
+D01-LOCUS1675-290	0	140	25	188	124.1176471	149
+D01-LOCUS2193-290	39	71	27	53	44.16666667	45
+D01-LOCUS2193-290	123	143	30	34	32	32
+D01-LOCUS2193-290	183	256	21	183	122.7592593	134.5
+```
+
+
 ## Find contiguous regions of high coverage/depth
 
 ### Output loci/regions with high depth
