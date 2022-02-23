@@ -53,7 +53,7 @@ bcftools mpileup -d 874 -f ./reference/reference_updated.fas $f | bcftools call 
 
 These commands can be used for either the individual or multi-sample VCF.
 
-### Print list of number of SNVs (SNPs and indels) per locus:
+### Print list of number of SNVs (SNPs and indels) per locus
 
 ```
 sed -e 's/chr//' all_variants.vcf | awk '{if (!/^#/) a[$1]++}END{for(i in a) print i,a[i]}'
@@ -74,7 +74,7 @@ D07-LOCUS120071-290 17
 ...
 ```
 
-### Print SNV counts:
+### Print SNV count at each locus
 
 ```
 sed -e 's/chr//' wrighti_all_variants.vcf | awk '{if (!/^#/) a[$1]++}END{for(i in a) print a[i]}' | sort -n | uniq -c
@@ -97,9 +97,41 @@ Output (number of loci, number of SNPs):
 ...
 ```
 
+### Print list of loci that have exactly 3 SNVs
+This can easily be modified to output different levels of SNVs. For example, `if(a[i]<10)` will output all loci with fewer than 10 SNVs.
 
-### Indels
-Print list of loci that contain indels (these will be blacklisted):
+```
+sed -e 's/chr//' all_variants.vcf | awk -F"\t" '{if (!/^#/) a[$1]++}END{for(i in a) if(a[i]=3) print i}' > 3snps.txt
+```
+
+Output (locus):
+
+```
+GA03F-LOCUS44720-135
+DC-JK13-112-LOCUS69498-290
+DF-JK13-1-010-LOCUS95860-290
+DF-JK13-1-015-LOCUS93698-290
+D13-LOCUS107014-290
+DF-JK13-1-010-LOCUS122818-290
+D07-LOCUS55782-290
+GA03F-LOCUS160728-135
+D07-LOCUS35049-290
+D07-LOCUS120071-290
+...
+```
+
+### Output proportion of missing data
+For multi-sample VCFs only. Output the proportion of missing data for each individual/sample listed in the VCF.
+
+```
+paste \
+<(bcftools query -f '[%SAMPLE\t]\n' all_variants.vcf | head -1 | tr '\t' '\n') \
+<(bcftools query -f '[%GT\t]\n' all_variants.recode.vcf | awk -v OFS="\t" '{for (i=1;i<=NF;i++) if ($i == "./.") sum[i]+=1 } END {for (i in sum) print i, sum[i] / NR }' | sort -k1,1n | cut -f 2)
+```
+
+
+### List loci with indels
+Print list of loci that contain indels (output can be used as a blacklist to remove indels later):
 
 ```
 sed -e 's/chr//' all_samples.vcf | awk '{OFS="\t"; if (!/^#/ && /INDEL/){print $1}}' | uniq > blacklist
@@ -119,8 +151,15 @@ D07-LOCUS148584-290
 D07-LOCUS162136-290
 ```
 
+## Subset VCF by condition 
+
+The raw VCF file will have every possible SNP and indel that met the basic quality control conditions but onward analyses usually require a more highly curated selection of SNVs.
+
+
+
+
 ## Subset one random SNP per locus from VCF
-Print a whitelist of loci/position with one *random* SNP per locus:
+Some analyses (like those using a site frequency spectrum) require all SNPs, but most SNP-based analyses require unlinked SNPs. This command will print a whitelist of loci/position with one *random* SNP per locus:
 
 >NOTE: Macs and some flavors of Linux might not have the `shuf` command. If not, install `coreutils`. (i.e., `brew install coreutils`) Every time the command is run the output will be a different set of locus/position combinations!
 
@@ -147,23 +186,4 @@ GA04F-LOCUS95349-135 36
 ...
 ```
 
-Print list of loci that have exactly 3 SNVs:
-```
-sed -e 's/chr//' all_variants.vcf | awk -F"\t" '{if (!/^#/) a[$1]++}END{for(i in a) if(a[i]=3) print i}' > 3snps.txt
-```
 
-Output (locus):
-
-```
-GA03F-LOCUS44720-135
-DC-JK13-112-LOCUS69498-290
-DF-JK13-1-010-LOCUS95860-290
-DF-JK13-1-015-LOCUS93698-290
-D13-LOCUS107014-290
-DF-JK13-1-010-LOCUS122818-290
-D07-LOCUS55782-290
-GA03F-LOCUS160728-135
-D07-LOCUS35049-290
-D07-LOCUS120071-290
-...
-```
