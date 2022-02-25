@@ -1,9 +1,11 @@
 # Quality control and statistics
 
-My primary goals when curating data for onward analyses:
-1. Make sure SNPs come from a contiguous region of high coverage/depth (not just one small high coverage area or areas with a mix of high/low depth)
-2. Remove loci with indels (which are difficult to call accurately) or high numbers of SNPs (see note below)
-3. Remove potential duplicate loci/repeating regions
+The ultimate goal here is to curate a list of loci and positions that will produce high quality sets of data for onward analyses. Quality control includes:
+1. Making sure SNPs come from a contiguous region of high coverage/depth (not just one small high coverage area or areas with a mix of high/low depth)
+2. Removing loci with indels (which are difficult to call accurately) or high numbers of SNPs (see note below)
+3. Removing potential duplicate loci/repeating regions
+
+In the first section, I'll go over looking at data quality and in the second section I'll cover how to implement quality controls.
 
 ## Basic mapping statistics
 
@@ -27,7 +29,7 @@ Example `flagstats.tsv` output with my notes below:
 29.59%	N/A	primary mapped %
 ...
 ```
-
+### What do these flags mean?
 - primary: “best” alignment
 - secondary: alternative alignment (e.g., second “best” alignment for the same primary read)
 - supplementary: single read split and aligned to more than one site
@@ -51,28 +53,65 @@ Here's a table with an example before/after:
 | primary mapped	| 6770718	| 2394757 |
 | primary mapped %	| 9.92%	| 100.00% |
 
-All the secondary, supplementary and duplicates were removed and only primary mapped reads remain.
+All the secondary, supplementary and duplicates were removed and only primary mapped reads remain, which is good!
 
-## Stats on locus depth
+# Coverage statistics
+
+>[Bedtools](https://bedtools.readthedocs.io/en/latest/) is required for most of these analyses.
+
+Bedtools `genomecov` output statistics on the depth of reads at each individual site on the reference locus. I've combined it with `merge` to look at the coverage of reads mapped across each locus. Loci with no mapped reads are removed.
+- `genomecov -bg`: output bed graph format with no zero values included
+- `merge -d 500`: regions must be within 500 bp of each other (a number large enough to cover everything on one locus)
+- `-c 4 -o min,max,mean,median`: calculate min, max, mean, and median for depth (column 4 on bedgraph output)
+- the `echo` command is just used to add a header so the file is easier to read by humans
 
 ```
-bedtools genomecov -bga -ibam DWR12.final.bam | awk '$4 >= 20' | bedtools merge -i - -c 4 -o min,max,mean,median > DWR12.stats.bed
+bedtools genomecov -bg -ibam DWR12.final.bam | bedtools merge -d 500 -i - -c 4 -o min,max,mean,median > DWR12.stats.bed
 echo -e "locus\tstart\tend\tmin\tmax\tmean\tmedian\n$(cat DWR12.stats.bed)" > DWR12.stats.bed
 ```
+Example output: (1) locus name, (2) start of coverage on the locus (if there is zero coverage on a locus, that region is omitted), (3) end of coverage on the locus, (4) minimum depth of coverage (on at least one position on the locus), (5) maximum depth of coverage, (6) mean depth of coverage across all positions on the locus, (7) median depth of coverage across the locus.
+``` 
+locus	start	end	min	max	mean	median
+D01-LOCUS392-290	30	285	2	12	6.363636364	6
+D01-LOCUS478-290	0	292	2	88	45.69230769	36
+D01-LOCUS491-290	102	123	2	2	2	2
+D01-LOCUS563-290	124	143	2	2	2	2
+D01-LOCUS1024-290	29	176	2	4	2.5	2
+D01-LOCUS1179-290	51	70	2	2	2	2
+D01-LOCUS1313-290	0	298	2	14	7.033333333	6.5
+D01-LOCUS1458-290	8	72	2	4	3	3
+D01-LOCUS1675-290	0	143	4	188	122.7209302	149
+...
+```
+
+## Create a histogram of coverage
+Output the coverage at each depth across *all* loci (rather than per locus, as above). This can be used to see what the distribution of depths are across all loci and create a cumulative summation of depth to identify a cut-off for depth. The main `genomecov` output includes two sections: (1) information about read coverage for each region of each reference locus that has mapped reads and (2) depth across the entire "genome" (i.e., all reference loci combined). I only want the section for the entire genome , so I `grep` the output for that section.
 
 ```
-head DWR12.stats.bed 
-locus	start	end	min	max	mean	median
-D01-LOCUS478-290	14	32	20	21	20.5	20.5
-D01-LOCUS478-290	75	87	20	26	23.66666667	24
-D01-LOCUS478-290	89	108	24	38	30.85714286	32
-D01-LOCUS478-290	109	142	20	40	30.83333333	32
-D01-LOCUS478-290	154	258	20	88	70.88461538	78
-D01-LOCUS1675-290	0	140	25	188	124.1176471	149
-D01-LOCUS2193-290	39	71	27	53	44.16666667	45
-D01-LOCUS2193-290	123	143	30	34	32	32
-D01-LOCUS2193-290	183	256	21	183	122.7592593	134.5
+bedtools genomecov -ibam DWR12.final.bam | grep ^genome > DWR12.coverage.hist.txt 
 ```
+
+Or make all the files in one go:
+```
+for f in *.final.bam; do bedtools genomecov -ibam $f | grep ^genome > ${f%%.*}.coverage.hist.txt; done
+```
+
+Example output: (1) ignore this column, (2) depth, (3) number of bases at this depth, (4) count of all bases across all loci (will always be the same), (5) fraction of bases at this depth
+```
+genome	0	1424666	2100808	0.678151
+genome	1	5283	2100808	0.00251475
+genome	2	247435	2100808	0.117781
+genome	3	3838	2100808	0.00182692
+genome	4	82906	2100808	0.0394639
+genome	5	3312	2100808	0.00157654
+genome	6	42295	2100808	0.0201327
+genome	7	2902	2100808	0.00138137
+genome	8	28932	2100808	0.0137718
+genome	9	2801	2100808	0.0013333
+```
+So, in the above example there are 1,424,666 bases with zero depth and 247,435 with a depth of two. What does that look like when graphed cumulatively?
+
+>Note: This graph only shows bases that have at least one read mapped to them. I’ve set the x-axis of the graph a max depth of 200 but the depth goes up to 28,342!
 
 
 ## Find contiguous regions of high coverage/depth
