@@ -5,12 +5,12 @@ The ultimate goal here is to curate a list of loci and positions that will produ
 2. Removing loci with indels (which are difficult to call accurately) or high numbers of SNPs (see note below)
 3. Removing potential duplicate loci/repeating regions
 
-In the first section, I'll go over looking at data quality and in the second section I'll cover how to implement quality controls.
+In this section, I'll go over looking at data quality and in the next section about variant calling I'll cover how to implement quality controls.
 
 ## Basic mapping statistics
 
-Once the final bam has been output, all of the information about duplicates, unmapped reads, etc. has been removed, so if you want to compare the before and after for some basic read mapping stats, then this needs to be run on `.marked.bam` files.
-> Note: You can get a lot more detailed output using `stats` rather than `flagstats` but since we’re just mapping back to short sequences rather than trying to align to a chromosome, I find `flagstats` works just fine.
+Outputting the final bam removes all of the information about duplicates, unmapped reads, etc., so if you want to compare the before and after for some basic read mapping stats, then this needs to be run on `.marked.bam` files.
+> Note: You can get a lot more detailed output using `stats` rather than `flagstats` but since I'm just mapping back to short sequences rather than trying to align to a chromosome, I find `flagstats` works just fine.
 ```
 for f in *.marked.bam; do samtools flagstat -O tsv $f > ../stats/${f%%.*}.flagstats.tsv; done
 ```
@@ -31,11 +31,11 @@ Example `flagstats.tsv` output with my notes below:
 ```
 ### What do these flags mean?
 - primary: “best” alignment
-- secondary: alternative alignment (e.g., second “best” alignment for the same primary read)
+- secondary: alternative alignment (e.g., second “best” alignment if the read maps to more than one place)
 - supplementary: single read split and aligned to more than one site
 - duplicates: PCR and optical duplicates
 	- “duplicates” includes secondary/supplementary alignments while “primary duplicates” doesn’t
-	- I had a lot of duplicates in this run because the library was overamplified, which is not ideal
+	- I had a lot of duplicates in the example run below because the library was overamplified (which is not ideal!)
 - mapped %: total reads/mapped
 - primary mapped %: primary/primary mapped
 
@@ -59,14 +59,14 @@ All the secondary, supplementary and duplicates were removed and only primary ma
 
 >[Bedtools](https://bedtools.readthedocs.io/en/latest/) is required for most of these analyses.
 
-Bedtools `genomecov` output statistics on the depth of reads at each individual site on the reference locus. I've combined it with `merge` to look at the coverage of reads mapped across each locus. Loci with no mapped reads are removed.
-- `genomecov -bg`: output bed graph format with no zero values included
+Bedtools `genomecov` outputs statistics on the depth of reads at each individual site on the reference loci. Combined with `merge`, it provides a look at the coverage of reads mapped across each locus. Loci with no mapped reads are removed.
+- `genomecov -bg`: output bedgraph format with no zero values included
 - `merge -d 500`: regions must be within 500 bp of each other (a number large enough to cover everything on one locus)
 - `-c 4 -o min,max,mean,median`: calculate min, max, mean, and median for depth (column 4 on bedgraph output)
 - the `echo` command is just used to add a header so the file is easier to read by humans
 
 ```
-bedtools genomecov -bg -ibam DWR12.final.bam | bedtools merge -d 500 -i - -c 4 -o min,max,mean,median > DWR12.stats.bed
+bedtools genomecov -bg -ibam DWR12.final.bam | bedtools merge -d 500 -i - -c 4 -o min,max,mean,median > DWR12.stats.bed &&
 echo -e "locus\tstart\tend\tmin\tmax\tmean\tmedian\n$(cat DWR12.stats.bed)" > DWR12.stats.bed
 ```
 Example output: (1) locus name, (2) start of coverage on the locus (if there is zero coverage on a locus, that region is omitted), (3) end of coverage on the locus, (4) minimum depth of coverage (on at least one position on the locus), (5) maximum depth of coverage, (6) mean depth of coverage across all positions on the locus, (7) median depth of coverage across the locus.
@@ -96,7 +96,7 @@ Or make all the files in one go:
 for f in *.final.bam; do bedtools genomecov -ibam $f | grep ^genome > ${f%%.*}.coverage.hist.txt; done
 ```
 
-Example output: (1) ignore this column, (2) depth, (3) number of bases at this depth, (4) count of all bases across all loci (will always be the same), (5) fraction of bases at this depth
+Example output: (1) genome (rather than individual locus), (2) depth, (3) number of bases at this depth, (4) count of all bases across all loci (will always be the same), (5) fraction of bases at this depth
 ```
 genome	0	1424666	2100808	0.678151
 genome	1	5283	2100808	0.00251475
@@ -109,6 +109,4 @@ genome	7	2902	2100808	0.00138137
 genome	8	28932	2100808	0.0137718
 genome	9	2801	2100808	0.0013333
 ```
-So, in the above example there are 1,424,666 bases with zero depth and 247,435 with a depth of two. What does that look like when graphed cumulatively?
 
->Note: This graph only shows bases that have at least one read mapped to them. I’ve set the x-axis of the graph a max depth of 200 but the depth goes up to 28,342!
