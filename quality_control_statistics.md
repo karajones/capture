@@ -125,5 +125,5 @@ awk '{sum += $5; if (sum >= 0.95) {print $2; exit}}' DWR12.coverage.hist.txt
 
 Depth of coverage is impacted by two variables that need to be taken into account: sequencing effort and taxonomic relationship. Sequencing effort is pretty obvious - the higher the sequencing effort, the higher the total fraction of target bases that have depth and the higher the depth at those bases. Taxa that are more distantly related to the species the capture kit is based on (primarily *Desmognathus fuscus* and *D. quadramaculatus*) will have higher zero coverage, where loci have no aligned reads. This results in a smaller total fraction of target bases covered, regardless of sequencing effort. Here is an example of two taxa at two levels of coverage:
 
-<img src="https://github.com/karajones/tutorials/blob/master/images/depth_by_taxon.png" width="800">
+<img src="https://github.com/karajones/tutorials/blob/master/images/depth_by_taxon.png" width="600">
 
