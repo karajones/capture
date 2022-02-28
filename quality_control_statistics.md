@@ -110,7 +110,11 @@ genome	8	28932	2100808	0.0137718
 genome	9	2801	2100808	0.0013333
 ```
 
-In the above example, there are 1,424,666 bases with zero depth and 247,435 with a depth of two. The maximum depth at any given site is 28,342. Clearly there are outlier sites with too high of a depth that need to be eliminated. But where to set the limit? Most of the depth falls within a reasonable range. The two dotted lines on the graph represent 10% and 5%. 90% of all bases have a depth less than 14, and 95% of all bases have a depth less than 55. The cut-off points associated with these values can be extracted from the histogram files:
+In the above example, there are 1,424,666 bases with zero depth and 247,435 with a depth of two. The maximum depth at any given site is 28,342. Clearly there are outlier sites with too high of a depth that need to be eliminated. But where to set the limit? Most of the depth falls within a reasonable range. The two dotted lines on the graph represent a 90% and 95% cumulative cut-off; 90% of all bases have a depth less than 14, and 95% of all bases have a depth less than 55. 
+
+<img src="https://github.com/karajones/tutorials/blob/master/images/DWR12_depth.png" width="450">
+
+The cut-off points associated with these values can be extracted from the histogram files:
 
 ```awk '{sum += $5; if (sum >= 0.90) {print $2; exit}}' DWR12.coverage.hist.txt
 14
