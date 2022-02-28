@@ -1,4 +1,4 @@
-# Variant calling: VCF
+# Variant calling and VCF output
 
 ### Create an individual VCF for each sample
 1. `mpileup -d`: maximum depth; see stats section
