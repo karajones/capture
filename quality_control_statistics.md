@@ -110,3 +110,12 @@ genome	8	28932	2100808	0.0137718
 genome	9	2801	2100808	0.0013333
 ```
 
+In the above example, there are 1,424,666 bases with zero depth and 247,435 with a depth of two. The maximum depth at any given site is 28,342. Clearly there are outlier sites with too high of a depth that need to be eliminated. But where to set the limit? Most of the depth falls within a reasonable range. The two dotted lines on the graph represent 10% and 5%. 90% of all bases have a depth less than 14, and 95% of all bases have a depth less than 55. The cut-off points associated with these values can be extracted from the histogram files:
+
+```awk '{sum += $5; if (sum >= 0.90) {print $2; exit}}' DWR12.coverage.hist.txt
+14
+awk '{sum += $5; if (sum >= 0.95) {print $2; exit}}' DWR12.coverage.hist.txt
+55
+```
+
+Depth of coverage is impacted by two variables that need to be taken into account: sequencing effort and taxonomic relationship. Sequencing effort is pretty obvious - the higher the sequencing effort, the higher the total fraction of target bases that have depth and the higher the depth at those bases. Taxa that are more distantly related to the species the capture kit is based on (primarily *Desmognathus fuscus* and *D. quadramaculatus*) will have higher zero coverage, where loci have no aligned reads. This results in a smaller total fraction of target bases covered, regardless of sequencing effort. 
