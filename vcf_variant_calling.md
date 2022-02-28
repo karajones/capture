@@ -1,7 +1,7 @@
 # Variant calling and VCF output
 
 ### Create an individual VCF for each sample
-1. `mpileup -d`: maximum depth; see stats section
+1. `mpileup -d`: maximum depth; see [stats](https://github.com/karajones/tutorials/blob/master/quality_control_statistics.md) section
 2. `call`: call variants
    - `-m` use multi-allelic caller (recommended)
    - `-v` output only variant sites
