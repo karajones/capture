@@ -110,10 +110,11 @@ genome	8	28932	2100808	0.0137718
 genome	9	2801	2100808	0.0013333
 ```
 
-In the above example, there are 1,424,666 bases with zero depth and 247,435 with a depth of two. The highest depth is 28,342. Clearly there are outlier sites with too high of a depth that need to be eliminated. But where to set the limit? Most of the depth falls within a reasonable range. The two dotted lines on the graph represent a 90% and 95% cumulative cut-off; 90% of all bases have a depth less than 14, and 95% of all bases have a depth less than 55.
->I cut the graph off at 200 bp depth so it's easier to see the drop-off of depth.
+In the above example, there are 1,424,666 bases with zero depth and 247,435 with a depth of two. The highest depth is 28,342. Clearly there are outlier sites with too high of a depth that need to be eliminated. But where to set the limit? Most of the depth falls within a reasonable range (see graph below).
 
-<img src="https://github.com/karajones/tutorials/blob/master/images/DWR12_depth.png" width="450">
+<img src="https://github.com/karajones/tutorials/blob/master/images/DWR12_depth.png" width="800">
+
+>Left: Histogram of all depths. Right: Same data with a smaller bin size and limited to a max of 200 bp depth so it's easier to see the drop-off of depth. The two dotted lines on the graph represent a 90% (black line) and 95% (grey line) cumulative cut-off; 90% of all bases have a depth less than 14, and 95% of all bases have a depth less than 55.
 
 The cut-off points associated with these values can be extracted from the histogram files:
 
@@ -126,12 +127,14 @@ awk '{sum += $5; if (sum >= 0.95) {print $2; exit}}' DWR12.coverage.hist.txt
 
 ## Things to consider when looking at depth
 
-Depth of coverage is impacted by three variables that need to be taken into account: sequencing effort, taxonomic relationship, and repeats. Sequencing effort is pretty obvious - the higher the sequencing effort, the higher the total fraction of target bases that have depth and the higher the depth at those bases. Taxa that are more distantly related to the species the capture kit is based on (primarily *Desmognathus fuscus* and *D. quadramaculatus*) will have a higher number of sites with zero coverage, where loci have no aligned reads. This results in a smaller total fraction of target bases covered, regardless of sequencing effort. Here is an example of two taxa at two levels of coverage:
+>**Tl;dr** Depth is inconsistent for various reasons. Use common sense when picking a cut-off. Many potential issues are probably resolved with the basic quality control measures already implemented in the included scripts.
+
+Depth of coverage is impacted by sequencing effort, taxonomic relationship, and repeats (amongst other things). Sequencing effort is pretty obvious - the higher the sequencing effort, the higher the total fraction of target bases that have non-zero depth and the higher the depth at those bases. Taxa that are more distantly related to the species the capture kit is based on (primarily *Desmognathus fuscus* and *D. quadramaculatus*) will have a higher number of sites with zero coverage, where loci have no aligned reads. This results in a smaller total fraction of target bases covered, regardless of sequencing effort. Here is an example of two taxa at two levels of coverage:
 
 <img src="https://github.com/karajones/tutorials/blob/master/images/depth_by_taxon.png" width="600">
 
-Determining whether a locus is part of a repeating element or transposon based on depth alone is a bit difficult. There are plenty of guides out there that say to just look at, say, average depth and sites with twice (or three times, etc.) are suspect. The logic makes sense intuitively. If baits are capturing from two or more different regions in the genome, those reads will map back to a single locus, producing a locus with twice the depth (or three times or four times, depending on how many different places the sequence shows up. But real data lacks a clear step effect where one locus has regions with depth *x*-times what is found at another locus. This is compounded by the fact that depth tends to be highest in the center of a locus, where more reads overlap, and wane toward the edges.
+Determining whether a locus is part of a repeating element or duplicate sequence based on depth alone is a bit difficult. I've read plenty of advice on the subject that says something along the lines of: look at the average depth; sites with twice (or three times, etc.) are suspect. The logic makes sense intuitively. If baits are capturing from two or more different regions in the genome, those reads will map back to a single locus, producing a locus with twice the depth (or three times or four times, depending on how many different places the sequence shows up. But real data lacks a clear step effect where one locus has regions with depth *x*-times what is found at another locus. This is compounded by the fact that depth tends to be highest in the center of a locus, where more reads overlap, and wane toward the edges.
 
-Long story short, I haven't found a method that is foolproof for dealing with depth. Using a cut-off like the 95% cumulative coverage above makes sense to me as an alternative to just eyeballing a graph of coverage. Other aspects of quality control will catch baits mapping to multiple areas, such as removing reads that map to multiple loci and sites with more than two alleles at a single position.
+Long story short, I haven't found a method that is foolproof for picking a depth. Using a cut-off like the 95% cumulative coverage above makes sense to me as an alternative to just eyeballing a graph of coverage and can easily be integrated into an automated script. Other aspects of quality control will catch baits mapping to multiple areas, such as removing reads that map to multiple loci and sites with more than two alleles at a single position.
 
 On to [variant calling](https://github.com/karajones/tutorials/blob/master/vcf_variant_calling.md) >
