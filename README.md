@@ -14,4 +14,4 @@ The baits were built from a combination of shotgun sequencing and loci from ddRA
 [Tutorial](https://github.com/karajones/tutorials/blob/master/quality_control_statistics.md) for producing read mapping statistics and thinking about quality control measures to implement.
 
 ### Variant calling and VCF output
-[Tutorial](https://github.com/karajones/tutorials/blob/master/vcf_variant_calling.md) for producing a single or multi-sample VCF. How to use whitelist, blacklists, and other tools to implement further quality control measures on the output. Also, how to get quick statistics from a VCF.
+[Script](https://github.com/karajones/tutorials/blob/master/scripts/vcf_script.txt) and [tutorial](https://github.com/karajones/tutorials/blob/master/vcf_variant_calling.md) for producing a single or multi-sample VCF. How to use whitelist, blacklists, and other tools to implement further quality control measures on the output. Also, how to get quick statistics from a VCF.
