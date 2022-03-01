@@ -5,7 +5,7 @@ The ultimate goal here is to curate a list of loci and positions that will produ
 2. Removing loci with indels (which are difficult to call accurately) or high numbers of SNPs (see next section)
 3. Removing potential duplicate loci/repeating regions
 
-In this section, I'll go over looking at data quality and in the next section about variant calling I'll cover how to implement quality controls.
+In this section, I'll go over looking at data quality and in the next section about [variant calling](https://github.com/karajones/tutorials/blob/master/vcf_variant_calling.md) I'll cover how to implement quality controls.
 
 ## Basic mapping statistics
 
@@ -132,3 +132,5 @@ Depth of coverage is impacted by three variables that need to be taken into acco
 Determining whether a locus is part of a repeating element or transposon based on depth alone is a bit difficult. There are plenty of guides out there that say to just look at, say, average depth and sites with twice (or three times, etc.) are suspect. The logic makes sense intuitively. If baits are capturing from two or more different regions in the genome, those reads will map back to a single locus, producing a locus with twice the depth (or three times or four times, depending on how many different places the sequence shows up. But real data lacks a clear step effect where one locus has regions with depth *x*-times what is found at another locus. This is compounded by the fact that depth tends to be highest in the center of a locus, where more reads overlap, and wane toward the edges.
 
 Long story short, I haven't found a method that is foolproof for dealing with depth. Using a cut-off like the 95% cumulative coverage above makes sense to me as an alternative to just eyeballing a graph of coverage. Other aspects of quality control will catch baits mapping to multiple areas, such as removing reads that map to multiple loci and sites with more than two alleles at a single position.
+
+On to [variant calling](https://github.com/karajones/tutorials/blob/master/vcf_variant_calling.md) >
