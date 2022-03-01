@@ -9,3 +9,8 @@ The baits were built from a combination of shotgun sequencing and loci from ddRA
 
 ### Mapping capture reads
 [Script](https://github.com/karajones/tutorials/blob/master/scripts/capture_read_mapping.txt) and [tutorial](https://github.com/karajones/tutorials/blob/master/read_mapping.md) for taking raw reads through to clean `bam` files ready for variant calling.
+
+### Quality control and read statistics
+[Tutorial] for statistics
+
+### Variant calling
