@@ -1,5 +1,7 @@
 # Variant calling and VCF output
 
+>This section goes with the [VCF script](https://github.com/karajones/capture/blob/master/scripts/vcf_script.txt).
+
 ### Create an individual VCF for each sample
 1. `mpileup -d`: maximum depth; see the [quality control and statistics](https://github.com/karajones/tutorials/blob/master/quality_control_statistics.md) section
 2. `call`: call variants
