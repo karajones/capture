@@ -173,7 +173,7 @@ D07-LOCUS120071-290 17
 ...
 ```
 
-### Print SNV count at each locus
+### Print total SNV count across loci
 
 ```
 sed -e 's/chr//' wrighti_all_variants.vcf | awk '{if (!/^#/) a[$1]++}END{for(i in a) print a[i]}' | sort -n | uniq -c
@@ -195,6 +195,7 @@ Output (number of loci, number of SNPs):
   16 12
 ...
 ```
+(i.e., there are 173 loci that have 1 SNP)
 
 ### Output proportion of missing data
 For multi-sample VCFs only. Output the proportion of missing data for each individual/sample listed in the VCF.
