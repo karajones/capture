@@ -1,4 +1,4 @@
-# Quality control and statistics
+# Quality control and read mapping statistics
 
 The ultimate goal here is to curate a list of loci and positions that will produce high quality sets of data for onward analyses. Quality control includes:
 1. Making sure SNPs come from a contiguous region of high coverage/depth (not just one small high coverage area or areas with a mix of high/low depth)
