@@ -1,5 +1,5 @@
 ##################################################################
-### Variant calling and VCF output 							   ###
+### Variant calling and VCF output 							               ###
 ### For more info, see https://github.com/karajones/tutorials  ###
 ### Required programs:                                         ###
 ### VCFtools (https://vcftools.github.io/)                     ###
