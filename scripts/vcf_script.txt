@@ -1,0 +1,54 @@
+##################################################################
+### Variant calling and VCF output 							   ###
+### For more info, see https://github.com/karajones/tutorials  ###
+### Required programs:                                         ###
+### VCFtools (https://vcftools.github.io/)                     ###
+### bcftools (https://samtools.github.io/bcftools/)            ###
+### Needed on some systems for `shuf`:                         ###
+### Coreutils (https://www.gnu.org/software/coreutils/)        ### 
+##################################################################
+
+# Create an individual VCF for each sample
+# set depth (-d) to whatever you need
+# current call outputs only variant sites (-v; indels are included)
+# -m2 and -M2 set min and max number of alleles to 2
+# --IndelGap 5: assuming indels within 5 bp of each other are false.
+# -e: exclude calls with a quality score below 200 and a depth below 20
+for f in ./bams/*.final.bam; do bcftools mpileup -d 500 -f ./reference/reference_updated.fas $f | bcftools call -m -v | bcftools view -m2 -M2 | bcftools filter -e '%QUAL<200 || DP<20' > ${f%%.*}.20dp.vcf; done
+
+# Create a multi-sample VCF
+# first creates a list of bam files in a directory, saved as bamlist
+for f in *.final.bam; do echo $f; done > bamlist &&
+bcftools mpileup -d 500 -f ./reference/reference_updated.fas $f | bcftools call -m -v | bcftools view -m2 -M2 | bcftools filter -e '%QUAL<200 || DP<20' > all_samples.vcf
+
+# Subset one random SNP per locus
+# works for individual or multi-sample VCFs
+# create a whitelist of loci and SNP positions
+# use whitelist to create a new VCF file with only those SNPs
+# every time the shuf code is run, a different list of SNPs will be output
+sed -e 's/chr//' all_samples.vcf | awk -F"\t" '{if (!/^#/) {print $1,$2}}' | shuf | awk '!a[$1]++' > random.snps
+vcftools --vcf all_samples.vcf --positions random.snps --recode --out whitelisted_snps
+
+# Remove loci that contain indels
+# print list of loci that contain indels
+# remove and re-output VCF file
+sed -e 's/chr//' all_samples.vcf | awk '{OFS="\t"; if (!/^#/ && /INDEL/){print $1}}' | uniq > blacklist
+vcftools --vcf all_samples.vcf --chr blacklist --recode --out no_indels
+
+### STATISTICS ###
+# Use these one liners to output statistics from VCFs
+
+# Print list of number of SNVs (SNPs and indels) per locus
+sed -e 's/chr//' all_variants.vcf | awk '{if (!/^#/) a[$1]++}END{for(i in a) print i,a[i]}'
+
+# Print total SNV count across loci
+# outputs number of loci in first column and the number of SNPs in the second column
+# read as X number of loci have 1 SNP, etc.
+sed -e 's/chr//' wrighti_all_variants.vcf | awk '{if (!/^#/) a[$1]++}END{for(i in a) print a[i]}' | sort -n | uniq -c
+
+# Output proportion of missing data
+# for multi-sample VCFs only
+# output the proportion of missing data for each individual/sample listed in the VCF
+paste \
+<(bcftools query -f '[%SAMPLE\t]\n' all_variants.vcf | head -1 | tr '\t' '\n') \
+<(bcftools query -f '[%GT\t]\n' all_variants.recode.vcf | awk -v OFS="\t" '{for (i=1;i<=NF;i++) if ($i == "./.") sum[i]+=1 } END {for (i in sum) print i, sum[i] / NR }' | sort -k1,1n | cut -f 2)
