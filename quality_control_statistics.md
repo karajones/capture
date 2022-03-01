@@ -12,7 +12,7 @@ In this section, I'll go over looking at data quality and in the next section ab
 Outputting the final bam removes all of the information about duplicates, unmapped reads, etc., so if you want to compare the before and after for some basic read mapping stats, then this needs to be run on `.marked.bam` files.
 > Note: You can get a lot more detailed output using `stats` rather than `flagstats` but since I'm just mapping back to short sequences rather than trying to align to a chromosome, I find `flagstats` works just fine.
 ```
-for f in *.marked.bam; do samtools flagstat -O tsv $f > ../stats/${f%%.*}.flagstats.tsv; done
+for f in *.marked.bam; do samtools flagstat -O tsv $f > ${f%%.*}.flagstats.tsv; done
 ```
 
 Example `flagstats.tsv` output with my notes below:
@@ -53,11 +53,11 @@ Here's a table with an example before/after:
 | primary mapped	| 6770718	| 2394757 |
 | primary mapped %	| 9.92%	| 100.00% |
 
-All the secondary, supplementary and duplicates were removed and only primary mapped reads remain, which is good!
+All the secondary, supplementary and duplicates were removed and only primary mapped reads remain, which is good.
 
 # Coverage statistics
 
->[Bedtools](https://bedtools.readthedocs.io/en/latest/) is required for most of these analyses.
+>[Bedtools](https://bedtools.readthedocs.io/en/latest/) is required for most of these analyses. See more about Bedtools [genomecov](https://bedtools.readthedocs.io/en/latest/content/tools/genomecov.html) and [merge](https://bedtools.readthedocs.io/en/latest/content/tools/merge.html). (Those pages have helpful visuals!)
 
 Bedtools `genomecov` outputs statistics on the depth of reads at each individual site on the reference loci. Combined with `merge`, it provides a look at the coverage of reads mapped across each locus. Loci with no mapped reads are removed.
 - `genomecov -bg`: output bedgraph format with no zero values included
@@ -110,7 +110,8 @@ genome	8	28932	2100808	0.0137718
 genome	9	2801	2100808	0.0013333
 ```
 
-In the above example, there are 1,424,666 bases with zero depth and 247,435 with a depth of two. The highest depth is 28,342. Clearly there are outlier sites with too high of a depth that need to be eliminated. But where to set the limit? Most of the depth falls within a reasonable range. The two dotted lines on the graph represent a 90% and 95% cumulative cut-off; 90% of all bases have a depth less than 14, and 95% of all bases have a depth less than 55. 
+In the above example, there are 1,424,666 bases with zero depth and 247,435 with a depth of two. The highest depth is 28,342. Clearly there are outlier sites with too high of a depth that need to be eliminated. But where to set the limit? Most of the depth falls within a reasonable range. The two dotted lines on the graph represent a 90% and 95% cumulative cut-off; 90% of all bases have a depth less than 14, and 95% of all bases have a depth less than 55.
+>I cut the graph off at 200 bp depth so it's easier to see the drop-off of depth.
 
 <img src="https://github.com/karajones/tutorials/blob/master/images/DWR12_depth.png" width="450">
 
