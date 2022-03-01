@@ -148,7 +148,7 @@ vcftools --vcf desmog_variants.vcf --chr 3snps.txt --recode --out 3snps
 
 ## List loci with indels
 Print list of loci that contain indels (output can be used as a blacklist to remove indels later).
->Indels can be removed in VCFtools with the `--remove-indels` flag, but that only removes the indels themselves, not the entire locus. Since indels are difficult to call it may be wise to completely remove loci with indels.
+>Indels can be removed in VCFtools with the `--remove-indels` flag (and with `bcftools` during variant calling), but that only removes the indels themselves, not the entire locus that an indel is found on. Since indels are difficult to call and throw off the positioning of other variant sites on a locus, it may be wise to completely remove loci with indels.
 
 ```
 sed -e 's/chr//' all_samples.vcf | awk '{OFS="\t"; if (!/^#/ && /INDEL/){print $1}}' | uniq > blacklist
