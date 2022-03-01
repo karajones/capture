@@ -2,7 +2,7 @@
 
 The ultimate goal here is to curate a list of loci and positions that will produce high quality sets of data for onward analyses. Quality control includes:
 1. Making sure SNPs come from a contiguous region of high coverage/depth (not just one small high coverage area or areas with a mix of high/low depth)
-2. Removing loci with indels (which are difficult to call accurately) or high numbers of SNPs (see note below)
+2. Removing loci with indels (which are difficult to call accurately) or high numbers of SNPs (see next section)
 3. Removing potential duplicate loci/repeating regions
 
 In this section, I'll go over looking at data quality and in the next section about variant calling I'll cover how to implement quality controls.
@@ -30,14 +30,14 @@ Example `flagstats.tsv` output with my notes below:
 ...
 ```
 ### What do these flags mean?
-- primary: “best” alignment
-- secondary: alternative alignment (e.g., second “best” alignment if the read maps to more than one place)
-- supplementary: single read split and aligned to more than one site
-- duplicates: PCR and optical duplicates
+- **primary** - “best” alignment
+- **secondary** - alternative alignment (e.g., second “best” alignment if the read maps to more than one place)
+- **supplementary** - single read split and aligned to more than one site
+- **duplicates** - PCR and optical duplicates
 	- “duplicates” includes secondary/supplementary alignments while “primary duplicates” doesn’t
 	- I had a lot of duplicates in the example run below because the library was overamplified (which is not ideal!)
-- mapped %: total reads/mapped
-- primary mapped %: primary/primary mapped
+- **mapped %** - total reads/mapped
+- **primary mapped %** - primary/primary mapped
 
 Here's a table with an example before/after:
 | flag | marked bam | final bam |
@@ -123,7 +123,12 @@ awk '{sum += $5; if (sum >= 0.95) {print $2; exit}}' DWR12.coverage.hist.txt
 55
 ```
 
-Depth of coverage is impacted by two variables that need to be taken into account: sequencing effort and taxonomic relationship. Sequencing effort is pretty obvious - the higher the sequencing effort, the higher the total fraction of target bases that have depth and the higher the depth at those bases. Taxa that are more distantly related to the species the capture kit is based on (primarily *Desmognathus fuscus* and *D. quadramaculatus*) will have higher zero coverage, where loci have no aligned reads. This results in a smaller total fraction of target bases covered, regardless of sequencing effort. Here is an example of two taxa at two levels of coverage:
+## Things to consider when looking at depth
+
+Depth of coverage is impacted by three variables that need to be taken into account: sequencing effort, taxonomic relationship, and repeats. Sequencing effort is pretty obvious - the higher the sequencing effort, the higher the total fraction of target bases that have depth and the higher the depth at those bases. Taxa that are more distantly related to the species the capture kit is based on (primarily *Desmognathus fuscus* and *D. quadramaculatus*) will have a higher number of sites with zero coverage, where loci have no aligned reads. This results in a smaller total fraction of target bases covered, regardless of sequencing effort. Here is an example of two taxa at two levels of coverage:
 
 <img src="https://github.com/karajones/tutorials/blob/master/images/depth_by_taxon.png" width="600">
 
+Determining whether a locus is part of a repeating element or transposon based on depth alone is a bit difficult. There are plenty of guides out there that say to just look at, say, average depth and sites with twice (or three times, etc.) are suspect. The logic makes sense intuitively. If baits are capturing from two or more different regions in the genome, those reads will map back to a single locus, producing a locus with twice the depth (or three times or four times, depending on how many different places the sequence shows up. But real data lacks a clear step effect where one locus has regions with depth *x*-times what is found at another locus. This is compounded by the fact that depth tends to be highest in the center of a locus, where more reads overlap, and wane toward the edges.
+
+Long story short, I haven't found a method that is foolproof for dealing with depth. Using a cut-off like the 95% cumulative coverage above makes sense to me as an alternative to just eyeballing a graph of coverage. Other aspects of quality control will catch baits mapping to multiple areas, such as removing reads that map to multiple loci and sites with more than two alleles at a single position.
