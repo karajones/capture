@@ -78,3 +78,5 @@ This is needed for some onward steps.
 ```
 for f in *.final.bam; do samtools index $f; done
 ```
+
+On to [read mapping statistics](https://github.com/karajones/capture/blob/master/quality_control_statistics.md) >
