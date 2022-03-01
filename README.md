@@ -10,7 +10,8 @@ The baits were built from a combination of shotgun sequencing and loci from ddRA
 ### Mapping capture reads
 [Script](https://github.com/karajones/tutorials/blob/master/scripts/capture_read_mapping.txt) and [tutorial](https://github.com/karajones/tutorials/blob/master/read_mapping.md) for taking raw reads through to clean `bam` files ready for variant calling.
 
-### Quality control and read statistics
-[Tutorial] for statistics
+### Quality control and read mapping statistics
+[Tutorial](https://github.com/karajones/tutorials/blob/master/quality_control_statistics.md) for producing read mapping statistics and thinking about quality control measures to implement.
 
-### Variant calling
+### Variant calling and VCF output
+[Tutorial](https://github.com/karajones/tutorials/blob/master/vcf_variant_calling.md) for producing a single or multi-sample VCF. How to use whitelist, blacklists, and other tools to implement further quality control measures on the output. Also, how to get quick statistics from a VCF.
