@@ -15,3 +15,7 @@ The baits were built from a combination of shotgun sequencing and loci from ddRA
 
 ### Variant calling and VCF output
 [Script](https://github.com/karajones/tutorials/blob/master/scripts/vcf_script.txt) and [tutorial](https://github.com/karajones/tutorials/blob/master/vcf_variant_calling.md) for producing a single or multi-sample VCF. How to use whitelist, blacklists, and other tools to implement further quality control measures on the output. Also, how to get quick statistics from a VCF.
+
+### To do:
+- Intersecting bed files to create a whitelist of loci and positions
+- Output a fasta file with variants for phylogenetic analyses
