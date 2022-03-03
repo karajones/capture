@@ -18,8 +18,8 @@ for f in ./bams/*.final.bam; do bcftools mpileup -d 500 -f ./reference/reference
 
 # Create a multi-sample VCF
 # first creates a list of bam files in a directory, saved as bamlist
-for f in *.final.bam; do echo $f; done > bamlist &&
-bcftools mpileup -d 500 -f ./reference/reference_updated.fas $f | bcftools call -m -v | bcftools view -m2 -M2 | bcftools filter -e '%QUAL<200 || DP<20' > all_samples.vcf
+for f in ./bams/*.final.bam; do echo $f; done > bamlist &&
+bcftools mpileup -d 500 -f ./reference/reference_updated.fas -b bamlist | bcftools call -m -v | bcftools view -m2 -M2 | bcftools filter -e '%QUAL<200 || DP<20' > all_samples.vcf
 
 # Subset one random SNP per locus
 # works for individual or multi-sample VCFs
