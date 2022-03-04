@@ -16,6 +16,9 @@ The baits were built from a combination of shotgun sequencing and loci from ddRA
 ### Variant calling and VCF output
 [Script](https://github.com/karajones/tutorials/blob/master/scripts/vcf_script.txt) and [tutorial](https://github.com/karajones/tutorials/blob/master/vcf_variant_calling.md) for producing a single or multi-sample VCF. How to use whitelist, blacklists, and other tools to implement further quality control measures on the output. Also, how to get quick statistics from a VCF.
 
+### Automated fastq to VCF shell script
+[Script](https://github.com/karajones/capture/blob/master/scripts/capture_multi_vcf.sh) starts with a directory of trimmed (paired) fastqs and outputs multi-sample VCF for all the samples in the directory with one random SNP per locus. Determines max depth based on average depth across all sites, removes loci with indels, keeps only sites where 50% or more of individuals have data. Requires: bwa, samtools, picard, bedtools, bcftools, vcftools.
+
 ### To do:
 - Intersecting bed files to create a whitelist of loci and positions
 - Output a fasta file with variants for phylogenetic analyses
