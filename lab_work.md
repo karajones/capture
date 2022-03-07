@@ -44,8 +44,8 @@ Here’s the entire lab procedure from start to finish, with my notes. See the i
 - I used a Covaris M220 but any *mechanical* shearing method with work
 	- Do NOT use an enzyme-based shearing method!
 
+<img src="images/2100 expert_High Sensitivity DNA Assay_DE13804202_2019-03-11_17-09-37_EGRAM_Sample2.bmp">
 
-(img)
 >Bioanalyzer trace for an individual after shearing, ready to go into library prep.
 
 
@@ -78,8 +78,8 @@ Library prep adds indexes and size selects the DNA to a tighter range (which imp
   - Make sure to adjust the bead ratio to account for the larger volume of pooled individuals
   - After bead cleanup, use a vacufuge (or similar) to concentrate the library down to 7 μl before continuing with bait capture
 
+<img src="images/2100 expert_High Sensitivity DNA Assay_DE13804202_2019-03-15_15-03-56_EGRAM_Sample1.bmp">
 
-(img)
 >Bioanalyzer trace after library prep with size selection for 250 bp. Keep in mind that a 250 bp insert size translates to a 370 bp length fragment (since the adapters and primers add 120 bp to each fragment).
 
 ## Step III: Capture using MyBaits (standard protocol)	
@@ -103,9 +103,10 @@ No changes from standard protocol
   - Libraries can be further pooled before bead cleanup
   - Recommend a 2:1 or 1.8:1 ratio of beads:reaction volume
 
+<img src="images/2100 expert_High Sensitivity DNA Assay_DE13804202_2019-05-01_10-52-02_EGRAM_Sample1.bmp">
+<img src="images/2100 expert_High Sensitivity DNA Assay_DE13804202_2019-05-01_10-52-02_EGRAM_Sample2.bmp">
 
-(img)(img)
->Bioanalyzer trace after capture and amplification. Top: finished capture library diluted before bioanalyzing. Bottom: same library undiluted.
+>Bioanalyzer traces after capture and amplification. Top: finished capture library diluted before bioanalyzing. Bottom: same library undiluted.
 
 ### Recommendations on final amplification
 This library was overamplified (14 cycles of amplification, over 600 ng/μl final concentration). About 45% of the mapped reads had to be removed as duplicates. :persevere: Moral of the story: don’t overamplify! If you start out with the same amount of DNA for each individual then test one capture library (4 pooled individuals) at 8 cycles and quantify it. Usually sequencing centers require about 2 ng/μl concentration, so aim for that or a little above. Adjust the number of cycles based on your test amplification. This will also reduce the number of unwanted fragments in the final library (i.e., the hump of fragments over 500 bp you can see on the second bioanalyzer trace above).
