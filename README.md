@@ -7,6 +7,9 @@ The baits were built from a combination of shotgun sequencing and loci from ddRA
 - 9,756 loci
 - 28,256 baits
 
+### Lab work
+[Sort-of tutorial](https://github.com/karajones/capture/blob/0bc35a31d067d0059ff2feafffae87a8fbd8b947/lab_work.md) on how to get raw DNA ready for sequencing. Includes list of reagents and recommendations for changing to standard protocols.
+
 ### Mapping capture reads
 [Script](https://github.com/karajones/tutorials/blob/master/scripts/capture_read_mapping.txt) and [tutorial](https://github.com/karajones/tutorials/blob/master/read_mapping.md) for taking raw reads through to clean `bam` files ready for variant calling.
 
