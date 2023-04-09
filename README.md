@@ -26,3 +26,5 @@ The baits were built from a combination of shotgun sequencing and loci from ddRA
 - Intersecting bed files to create a whitelist of loci and positions
 - Output a fasta file with variants for phylogenetic analyses
 - Check for linkage between loci/finish mapping to transcriptome
+- Create single output file for mapping statistics (from individual flagstat files)
+- Optimize for parallelizing on computing cluster
