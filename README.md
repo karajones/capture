@@ -1,3 +1,6 @@
+> [!WARNING]
+> Manuscript in review. Some of this might be out of date - I'll update this when I have time.
+
 # Tutorials and scripts for plethodontid capture kit
 
 The scripts and tutorials here are intended to work with the DNA capture bait kit I designed for *Desmognathus* salamanders (family: Plethodontidae). The capture kit itself works with varying degrees of success with other genera I’ve tested it against within Plethodontidae (*Plethodon*, *Eurycea*, and *Gyrinophilus*). The scripts and analyses here should work for any capture kit or similar type of data.  I’ll be adding more scripts and analyses in the near future.
